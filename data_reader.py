@@ -20,7 +20,7 @@ class DataReader:
         for i in range(0, instance_size):
             data_line = [int(data) for data in file.readline().split()]
             distance_matrix[i] = data_line
-
+        file.close()
         return instance_size, flow_matrix, distance_matrix
 
 
