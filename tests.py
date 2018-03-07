@@ -18,7 +18,7 @@ class TestClass(unittest.TestCase):
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
         result = genetic_algorithm.evaluate_specimen_fitness([3, 10, 11, 2, 12, 5, 6, 7, 8, 1, 4, 9])
-        print(result)
+
         assert result == 1652
 
     def test_evaluate_specimen_fitness_had14(self):
@@ -63,6 +63,18 @@ class TestClass(unittest.TestCase):
     def __get_path(self, file):
         return os.path.join(os.path.dirname(os.path.abspath(__file__)), file)
 
+    @unittest.skip
+    def test_validate_and_fix_specimen(self):
+        reader = DataReader()
+        path = self.__get_path(r"data/had12.dat")
+        n, flow_matrix, distance_matrix = reader.read_data(path)
+        specimen = [3, 3, 11, 2, 12, 5, 6, 7, 8, 1, 4, 9]
+
+        genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
+        genetic_algorithm.validate_and_fix_specimen(specimen)
+
+        print(specimen)
+        assert len(specimen) == len(set(specimen))
 
 if __name__ == '__main__':
     unittest.main()
