@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class GeneticAlgorithm:
     def __init__(self, num_of_locations, flow_matrix, distance_matrix):
         self.__num_of_locations = num_of_locations
@@ -33,17 +32,14 @@ class GeneticAlgorithm:
         return population
 
     def evaluate_specimen_fitness(self, specimen):
-        return np.sum([self.evaluate_location_cost(facility, specimen[facility])
-                       for facility in range(0, len(specimen))])
+        fitness_acc = 0
+        for facility in range(0, len(specimen)):
+            for other_facility in range(0, len(specimen)):
+                if facility == other_facility:
+                    continue
+                fitness_acc += self.__flow(facility, other_facility) * self.__distance(specimen[facility], specimen[other_facility])
+        return fitness_acc
 
-    def evaluate_location_cost(self, facility, location):
-        facility_flow_vector = self.__flow_matrix[facility]
-        location_distance_vector = self.__distance_matrix[location - 1]
-        print("Flows to other facilities from facility nr %i:\n%s"
-              "\nDistances to other locations from location nr %i:\n%s\n\n" %
-              (facility, facility_flow_vector, location, location_distance_vector))
-
-        return np.sum(facility_flow_vector * location_distance_vector)
 
     def selection(self, population, population_fitness):
         return np.array(
@@ -53,6 +49,12 @@ class GeneticAlgorithm:
 
     def crossover(self, population):
         pass
+
+    def __distance(self, location, other_location):
+        return self.__distance_matrix[location-1, other_location-1]
+
+    def __flow(self, facility, other_facility):
+        return self.__flow_matrix[facility, other_facility]
 
 
 
