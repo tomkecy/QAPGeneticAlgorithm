@@ -2,11 +2,16 @@ import numpy as np
 
 
 class GeneticAlgorithm:
-    def __init__(self, num_of_locations, pop_size, flow_matrix, distance_matrix):
+    def __init__(self, num_of_locations, pop_size, flow_matrix, distance_matrix, mutation_probability,
+                 crossover_probability, tour, data_logger):
         self.__num_of_locations = num_of_locations
         self.__flow_matrix = flow_matrix
         self.__distance_matrix = distance_matrix
         self.__pop_size = pop_size
+        self.__data_logger = data_logger
+        self.__mutation_probability = mutation_probability
+        self.__tour = tour
+        self.__crossover_probability = crossover_probability
 
     def __generate_specimen(self):
         specimen = [i for i in range(1, self.__num_of_locations + 1)]
@@ -29,18 +34,29 @@ class GeneticAlgorithm:
         current_best_index = np.argmin(population_fitness)
         current_best_specimen = population[current_best_index]
         current_best_fitness = population_fitness[current_best_index]
+        global_best_specimen = current_best_specimen
+        global_best_fitness = current_best_fitness
+
+        self.__data_logger.write_log(current_generation, current_best_fitness, np.average(population_fitness), np.amax(population_fitness))
 
         while current_generation < generations:
             population = self.selection(population, population_fitness)
             population = self.crossover(population)
-            # TODO mutation
+            self.mutation(population)
 
             population_fitness = self.evaluate(population)
             current_best_index = np.argmin(population_fitness)
             current_best_specimen = population[current_best_index]
             current_best_fitness = population_fitness[current_best_index]
             current_generation += 1
-        return current_best_specimen, current_best_fitness
+            self.__data_logger.write_log(current_generation, current_best_fitness, np.average(population_fitness),
+                                         np.amax(population_fitness))
+
+            if current_best_fitness < global_best_fitness:
+                global_best_fitness = current_best_fitness
+                global_best_specimen = current_best_specimen
+
+        return global_best_specimen, global_best_fitness
 
     def evaluate_specimen_fitness(self, specimen):
         fitness_acc = 0
@@ -53,19 +69,20 @@ class GeneticAlgorithm:
         return fitness_acc
 
     def selection(self, population, population_fitness):
-        # TODO po selekcji populacja powinna wynosic 100 - poprawic
-        return np.array(
-            [population[i] if population_fitness[i] <= population_fitness[i + 1] else population[i + 1]
-             for i in range(0, len(population), 2)]
-        )
+        selected_population = []
+        for i in range(0, self.__pop_size):
+            competitors_indices = [np.random.randint(0, len(population)) for _ in range(0, self.__tour)]
+            best_competitor_index = np.argmin(population_fitness[competitors_indices])
+            selected_population.append(population[best_competitor_index])
+
+        return np.array(selected_population)
 
     def crossover(self, population):
-        # TODO tutaj tez do poprawy po selection fix
         children = []
-        first_parent_index = np.random.randint(0, len(population))
-        second_parent_index = np.random.randint(0, len(population))
 
         for i in range(0, self.__pop_size):
+            first_parent_index = np.random.randint(0, len(population))
+            second_parent_index = np.random.randint(0, len(population))
             first_child, second_child = self.__specimens_crossover(population[first_parent_index],
                                                                    population[second_parent_index])
             children.extend([first_child, second_child])
@@ -78,6 +95,9 @@ class GeneticAlgorithm:
         return self.__flow_matrix[facility, other_facility]
 
     def __specimens_crossover(self, first_parent, second_parent):
+        if np.random.randint(0, 1) >= self.__crossover_probability:
+            return first_parent, second_parent
+
         cross_point = np.random.randint(0, len(first_parent))
 
         first_child = np.append(first_parent[:cross_point], second_parent[cross_point:])
@@ -101,3 +121,14 @@ class GeneticAlgorithm:
         for i in duplicates_indices:
             specimen[i] = not_found[0]
             del not_found[0]
+
+    def mutation(self, population):
+        for specimen in population:
+            if np.random.random() < self.__mutation_probability:
+                first_index = np.random.randint(0, len(specimen))
+                second_index = (first_index + np.random.randint(1, len(specimen))) % len(specimen)
+                temp = specimen[first_index]
+                specimen[first_index] = specimen[second_index]
+                specimen[second_index] = temp
+
+
