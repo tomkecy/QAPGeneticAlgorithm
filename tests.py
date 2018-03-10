@@ -17,7 +17,7 @@ class TestClass(unittest.TestCase):
         n, flow_matrix, distance_matrix = reader.read_data(path)
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
-        result = genetic_algorithm.evaluate_specimen_fitness([3, 10, 11, 2, 12, 5, 6, 7, 8, 1, 4, 9])
+        result = genetic_algorithm.__evaluate_specimen_fitness([3, 10, 11, 2, 12, 5, 6, 7, 8, 1, 4, 9])
 
         assert result == 1652
 
@@ -28,7 +28,7 @@ class TestClass(unittest.TestCase):
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
 
-        assert genetic_algorithm.evaluate_specimen_fitness([8, 13, 10, 5, 12, 11, 2, 14, 3, 6, 7, 1, 9, 4]) == 2724
+        assert genetic_algorithm.__evaluate_specimen_fitness([8, 13, 10, 5, 12, 11, 2, 14, 3, 6, 7, 1, 9, 4]) == 2724
 
     def test_evaluate_specimen_fitness_had16(self):
         reader = DataReader()
@@ -37,7 +37,7 @@ class TestClass(unittest.TestCase):
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
 
-        assert genetic_algorithm.evaluate_specimen_fitness(
+        assert genetic_algorithm.__evaluate_specimen_fitness(
             [9, 4, 16, 1, 7, 8, 6, 14, 15, 11, 12, 10, 5, 3, 2, 13]) == 3720
 
     def test_evaluate_specimen_fitness_had18(self):
@@ -47,7 +47,7 @@ class TestClass(unittest.TestCase):
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
 
-        assert genetic_algorithm.evaluate_specimen_fitness(
+        assert genetic_algorithm.__evaluate_specimen_fitness(
             [8, 15, 16, 6, 7, 18, 14, 11, 1, 10, 12, 5, 3, 13, 2, 17, 9, 4]) == 5358
 
     def test_evaluate_specimen_fitness_had20(self):
@@ -57,7 +57,7 @@ class TestClass(unittest.TestCase):
 
         genetic_algorithm = GeneticAlgorithm(n, flow_matrix, distance_matrix)
 
-        assert genetic_algorithm.evaluate_specimen_fitness(
+        assert genetic_algorithm.__evaluate_specimen_fitness(
             [8, 15, 16, 14, 19, 6, 7, 17, 1, 12, 10, 11, 5, 20, 2, 3, 4, 9, 18, 13]) == 6922
 
     def __get_path(self, file):

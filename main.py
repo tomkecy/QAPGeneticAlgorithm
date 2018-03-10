@@ -12,7 +12,6 @@ reader = DataReader()
 n, flow_matrix, distance_matrix = reader.read_data("data/had12.dat")
 logger = DataLogger()
 
-genetic_algorithm = GeneticAlgorithm(n, pop_size, flow_matrix, distance_matrix, Pm, Px, Tour, logger)
+genetic_algorithm = GeneticAlgorithm(n, pop_size, flow_matrix, distance_matrix, Pm, Px, Tour, logger, 'roulette')
 print(genetic_algorithm.run(gen))
 logger.close()
-
