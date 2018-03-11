@@ -12,8 +12,8 @@ class GeneticAlgorithm:
         self.__mutation_probability = mutation_probability
         self.__tour = tour
         self.__crossover_probability = crossover_probability
-        self.__population = np.empty()
-        self.__population_fitness = np.empty()
+        self.__population = np.empty(shape=(1, 1))
+        self.__population_fitness = np.empty(shape=(1, 1))
 
         if selection_method.lower() == 'tournament':
             self.__selection_method = self.__tournament_selection
@@ -89,19 +89,44 @@ class GeneticAlgorithm:
         return np.array(selected_population)
 
     def __roulette_selection(self):
-        #do optymalizacji
-        pop_fitness = self.__population_fitness
-        fitness_sum = np.sum(pop_fitness)
+        fitness_sum = np.sum(self.__population_fitness)
+        probability_array = [(self.__population_fitness[i]/fitness_sum)*self.__pop_size for i in range(self.__pop_size)]
+        alias = [0 for _ in range(0, self.__pop_size)]
+        prob = [0 for _ in range(0, self.__pop_size)]
+        small = []
+        large = []
         selected_population = []
-        for i in range(0, self.__pop_size):
-            random_selection = np.random.randint(0, fitness_sum + 1)
-            specimen_index = 0
-            accumulator = pop_fitness[specimen_index]
-            while accumulator < random_selection:
-                specimen_index += 1
-                accumulator += pop_fitness[specimen_index]
-            selected_population.append(self.__population[specimen_index])
 
+        for i in range(0, self.__pop_size):
+            if probability_array[i] < 1:
+                small.append(i)
+            else:
+                large.append(i)
+        while small and large:
+            l = small.pop(0)
+            g = large.pop(0)
+
+            prob[l] = probability_array[l]
+            alias[l] = g
+            probability_array[g] = (probability_array[g] + probability_array[l]) - 1
+            if probability_array[g] < 1:
+                small.append(g)
+            else:
+                large.append(g)
+        while large:
+            g = large.pop(0)
+            prob[g] = 1
+        while small:
+            l = small.pop(0)
+            prob[l] = 1
+
+        #generation
+        for _ in range(0, self.__pop_size):
+            i = np.random.randint(0, self.__pop_size)
+            if np.random.rand() < prob[i]:
+                selected_population.append(self.__population[i])
+            else:
+                selected_population.append(self.__population[alias[i]])
         return np.array(selected_population)
 
     def __crossover(self):
