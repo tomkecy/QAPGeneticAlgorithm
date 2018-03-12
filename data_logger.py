@@ -14,5 +14,8 @@ class DataLogger:
     def write_header(self):
         self.__file.write('nr_pokolenia, najlepsza_ocena, srednia_ocen, najgorsza_ocena\n')
 
+    def write_line_separator(self, times=1):
+        self.__file.write('\n'*times)
+
     def close(self):
         self.__file.close()
