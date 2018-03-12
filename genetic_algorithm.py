@@ -84,7 +84,7 @@ class GeneticAlgorithm:
         selected_population = []
         for i in range(0, self.__pop_size):
             competitors_indices = np.random.choice([i for i in range(0, self.__pop_size)], self.__tour, False)
-            best_competitor_index = np.argmin(self.__population_fitness[competitors_indices])
+            best_competitor_index = competitors_indices[np.argmin(self.__population_fitness[competitors_indices])]
             selected_population.append(self.__population[best_competitor_index])
         return np.array(selected_population)
 
