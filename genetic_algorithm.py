@@ -8,6 +8,8 @@ class GeneticAlgorithm:
         self.__flow_matrix = flow_matrix
         self.__distance_matrix = distance_matrix
         self.__pop_size = pop_size
+        self.__pop_indices_array = np.array([i for i in range(pop_size)])
+
         self.__data_logger = data_logger
         self.__mutation_probability = mutation_probability
         self.__tour = tour
@@ -85,7 +87,7 @@ class GeneticAlgorithm:
     def __tournament_selection(self):
         selected_population = []
         for i in range(0, self.__pop_size):
-            competitors_indices = np.random.choice([i for i in range(0, self.__pop_size)], self.__tour, False)
+            competitors_indices = np.random.choice(self.__pop_indices_array, self.__tour, False)
             best_competitor_index = competitors_indices[np.argmin(self.__population_fitness[competitors_indices])]
             selected_population.append(self.__population[best_competitor_index])
         return np.array(selected_population)
@@ -96,7 +98,7 @@ class GeneticAlgorithm:
         fitness_sum = np.sum(normalized_fitness)
         probability_array = [(normalized_fitness[i] / fitness_sum) for i in range(self.__pop_size)]
         selected_indices = np.array(
-            np.random.choice([i for i in range(self.__pop_size)], size=self.__pop_size, replace=True,
+            np.random.choice(self.__pop_indices_array, size=self.__pop_size, replace=True,
                              p=probability_array))
         return np.array(self.__population[selected_indices])
 
