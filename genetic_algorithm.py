@@ -50,7 +50,8 @@ class GeneticAlgorithm:
 
             current_best_specimen, current_best_fitness = self.__get_current_best()
             current_generation += 1
-            self.__data_logger.write_log(current_generation, current_best_fitness, np.average(self.__population_fitness),
+            self.__data_logger.write_log(current_generation, current_best_fitness,
+                                         np.average(self.__population_fitness),
                                          np.amax(self.__population_fitness))
 
             if current_best_fitness < global_best_fitness:
@@ -64,7 +65,8 @@ class GeneticAlgorithm:
         return self.__population[current_best_index], self.__population_fitness[current_best_index]
 
     def __evaluate(self):
-        self.__population_fitness = np.array([self.__evaluate_specimen_fitness(specimen) for specimen in self.__population])
+        self.__population_fitness = np.array(
+            [self.__evaluate_specimen_fitness(specimen) for specimen in self.__population])
 
     def __evaluate_specimen_fitness(self, specimen):
         fitness_acc = 0
@@ -89,14 +91,25 @@ class GeneticAlgorithm:
         return np.array(selected_population)
 
     def __roulette_selection(self):
-        fitness_sum = np.sum(self.__population_fitness)
-        probability_array = [(self.__population_fitness[i]/fitness_sum)*self.__pop_size for i in range(self.__pop_size)]
+        pop_worst_fitness = np.amax(self.__population_fitness)
+        normalized_fitness = [pop_worst_fitness + 1 - self.__population_fitness[i] for i in range(self.__pop_size)]
+        fitness_sum = np.sum(normalized_fitness)
+        probability_array = [(normalized_fitness[i] / fitness_sum) for i in range(self.__pop_size)]
+        selected_indices = np.array(
+            np.random.choice([i for i in range(self.__pop_size)], size=self.__pop_size, replace=True,
+                             p=probability_array))
+        return np.array(self.__population[selected_indices])
+
+    def __roulette_old(self):
+        pop_worst_fitness = np.amax(self.__population_fitness)
+        normalized_fitness = [pop_worst_fitness + 1 - self.__population_fitness[i] for i in range(self.__pop_size)]
+        fitness_sum = np.sum(normalized_fitness)
+        probability_array = [(normalized_fitness[i] / fitness_sum) * self.__pop_size for i in range(self.__pop_size)]
         alias = [0 for _ in range(0, self.__pop_size)]
         prob = [0 for _ in range(0, self.__pop_size)]
         small = []
         large = []
         selected_population = []
-
         for i in range(0, self.__pop_size):
             if probability_array[i] < 1:
                 small.append(i)
@@ -119,8 +132,7 @@ class GeneticAlgorithm:
         while small:
             l = small.pop(0)
             prob[l] = 1
-
-        #generation
+        # generation
         for _ in range(0, self.__pop_size):
             i = np.random.randint(0, self.__pop_size)
             if np.random.rand() < prob[i]:
@@ -175,7 +187,3 @@ class GeneticAlgorithm:
                 temp = specimen[first_index]
                 specimen[first_index] = specimen[second_index]
                 specimen[second_index] = temp
-
-
-
-
